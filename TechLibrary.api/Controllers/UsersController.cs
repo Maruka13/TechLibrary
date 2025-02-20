@@ -11,11 +11,5 @@ namespace TechLibrary.api.Controllers
         {
             return Create();
         }
-
-        [HttpGet]
-        public IActionResult Get()
-        {
-            return Create();
-        }
     }
 }
