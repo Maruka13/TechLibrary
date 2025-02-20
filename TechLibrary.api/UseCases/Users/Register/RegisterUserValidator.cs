@@ -10,7 +10,10 @@ namespace TechLibrary.api.UseCases.Users.Register
             RuleFor(request => request.Name).NotEmpty().WithMessage("Nome obrigatório.");
             RuleFor(request => request.Email).EmailAddress().WithMessage("Email inválido.");
             RuleFor(request => request.Password).NotEmpty().WithMessage("Senha obrigatória.");
-            RuleFor(request => request.Password.Length).GreaterThanOrEqualTo(6).WithMessage("Senha deve ter 6 ou mais caracteres.");
+            When(request => string.IsNullOrEmpty(request.Password) == false, () =>
+            {
+                RuleFor(request => request.Password.Length).GreaterThanOrEqualTo(6).WithMessage("Senha deve ter 6 ou mais caracteres.");
+            });
         }
     }
 }
