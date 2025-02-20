@@ -1,5 +1,6 @@
 ﻿using TechLibrary.Communication.Requests;
 using TechLibrary.Communication.Responses;
+using TechLibrary.Exception;
 
 namespace TechLibrary.api.UseCases.Users.Register
 {
@@ -23,7 +24,11 @@ namespace TechLibrary.api.UseCases.Users.Register
 
             if (result.IsValid == false)
             {
-                var errorMessages = result.Errors.Select(error => error.ErrorMessage).ToList(); 
+                var errorMessages = result.Errors.Select(error => error.ErrorMessage).ToList();
+
+                throw new ErrorOnValidationException(errorMessages);
+
+
             }
 
         }
