@@ -7,12 +7,26 @@ namespace TechLibrary.api.UseCases.Users.Register
     {
         public ResponseRegisteredUserJson Execute(RequestUserJson request)
         {
-
+            Validate(request);
 
             return new ResponseRegisteredUserJson
             {
 
             };
         }
+
+        private void Validate(RequestUserJson request)
+        {
+            var validator = new RegisterUserValidator();
+
+            var result = validator.Validate(request);
+
+            if (result.IsValid == false)
+            {
+                var errorMessages = result.Errors.Select(error => error.ErrorMessage).ToList(); 
+            }
+
+        }
+
     }
 }
