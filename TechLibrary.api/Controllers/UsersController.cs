@@ -12,6 +12,7 @@ namespace TechLibrary.api.Controllers
     {
         [HttpPost]
         [ProducesResponseType(typeof(ResponseRegisteredUserJson), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ResponseRegisteredUserJson), StatusCodes.Status400BadRequest)]
         public IActionResult Create(RequestUserJson request)
         {
             try
@@ -24,7 +25,17 @@ namespace TechLibrary.api.Controllers
             }
             catch (TechLibraryException ex)
             {
-                return BadRequest(ex.GetErrorMessages());
+                return BadRequest(new ResponseErrorMessagesJson
+                {
+                    Errors = ex.GetErrorMessages()
+                });
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorMessagesJson
+                {
+                    Errors = ["Erro desconhecido"]
+                });
             }
 
         }     
