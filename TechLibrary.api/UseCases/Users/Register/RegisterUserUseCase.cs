@@ -1,4 +1,7 @@
-﻿using TechLibrary.Communication.Requests;
+﻿using System.ComponentModel.DataAnnotations;
+using TechLibrary.api.Domain.Entities;
+using TechLibrary.api.Infraestructure;
+using TechLibrary.Communication.Requests;
 using TechLibrary.Communication.Responses;
 using TechLibrary.Exception;
 
@@ -10,9 +13,21 @@ namespace TechLibrary.api.UseCases.Users.Register
         {
             Validate(request);
 
+            var entity = new User
+            {
+                Name = request.Name,
+                Email = request.Email,
+                Password = request.Password,
+            };
+
+            var dbContext = new TechLibraryDbContext();
+
+            dbContext.Users.Add(entity);
+            dbContext.SaveChanges();
+
             return new ResponseRegisteredUserJson
             {
-
+                Name = entity.Name
             };
         }
 
