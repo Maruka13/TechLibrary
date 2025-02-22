@@ -1,7 +1,6 @@
-﻿namespace TechLibrary.Communication.Responses
+﻿namespace TechLibrary.Communication.Responses;
+
+public class ResponseErrorMessagesJson
 {
-    public class ResponseErrorMessagesJson
-    {
-        public List<string> Errors { get; set; } = new List<string>(); 
-    }
+    public List<string> Errors { get; set; } = [];
 }

@@ -1,52 +1,58 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FluentValidation.Results;
 using TechLibrary.api.Domain.Entities;
-using TechLibrary.api.Infraestructure;
+using TechLibrary.api.Infraestructure.DataAccess;
+using TechLibrary.api.UseCases.Users.Register;
+using TechLibrary.Api.Infraestructure.Secutiry.Cryptography;
+using TechLibrary.Api.Infraestructure.Secutiry.Tokens.Access;
 using TechLibrary.Communication.Requests;
 using TechLibrary.Communication.Responses;
 using TechLibrary.Exception;
 
-namespace TechLibrary.api.UseCases.Users.Register
+namespace TechLibrary.Api.UseCases.Users.Register;
+
+public class RegisterUserUseCase
 {
-    public class RegisterUserUseCase
+    public ResponseRegisteredUserJson Execute(RequestUserJson request)
     {
-        public ResponseRegisteredUserJson Execute(RequestUserJson request)
+        var dbContext = new TechLibraryDbContext();
+
+        Validate(request, dbContext);
+
+        var cryptography = new BCryptAlgorithm();
+        var entity = new User
         {
-            Validate(request);
+            Email = request.Email,
+            Name = request.Name,
+            Password = cryptography.HashPassword(request.Password),
+        };
 
-            var entity = new User
-            {
-                Name = request.Name,
-                Email = request.Email,
-                Password = request.Password,
-            };
+        dbContext.Users.Add(entity);
+        dbContext.SaveChanges();
 
-            var dbContext = new TechLibraryDbContext();
+        var tokenGenerator = new JwtTokenGenerator();
 
-            dbContext.Users.Add(entity);
-            dbContext.SaveChanges();
-
-            return new ResponseRegisteredUserJson
-            {
-                Name = entity.Name
-            };
-        }
-
-        private void Validate(RequestUserJson request)
+        return new ResponseRegisteredUserJson
         {
-            var validator = new RegisterUserValidator();
+            Name = entity.Name,
+            AccessToken = tokenGenerator.Generate(entity)
+        };
+    }
 
-            var result = validator.Validate(request);
+    private void Validate(RequestUserJson request, TechLibraryDbContext dbContext)
+    {
+        var validator = new RegisterUserValidator();
 
-            if (result.IsValid == false)
-            {
-                var errorMessages = result.Errors.Select(error => error.ErrorMessage).ToList();
+        var result = validator.Validate(request);
 
-                throw new ErrorOnValidationException(errorMessages);
+        var existUserWithEmail = dbContext.Users.Any(user => user.Email.Equals(request.Email));
+        if (existUserWithEmail)
+            result.Errors.Add(new ValidationFailure("Email", "E-mail já registrado na plataforma!"));
 
+        if (result.IsValid == false)
+        {
+            var errorMessages = result.Errors.Select(error => error.ErrorMessage).ToList();
 
-            }
-
+            throw new ErrorOnValidationException(errorMessages);
         }
-
     }
 }

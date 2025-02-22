@@ -12,7 +12,7 @@ namespace TechLibrary.api.UseCases.Users.Register
             RuleFor(request => request.Password).NotEmpty().WithMessage("Senha obrigatória.");
             When(request => string.IsNullOrEmpty(request.Password) == false, () =>
             {
-                RuleFor(request => request.Password.Length).GreaterThanOrEqualTo(6).WithMessage("Senha deve ter 6 ou mais caracteres.");
+                RuleFor(request => request.Password.Length).GreaterThanOrEqualTo(6).WithMessage("Senha deve conter 6 ou mais caracteres.");
             });
         }
     }
